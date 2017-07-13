@@ -13,6 +13,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 
+import static java.lang.Thread.sleep;
+
 /**
  * This is a Slack Webhook sample. Webhooks are nothing but POST calls to
  * Slack with data relevant to your users. You can send the data
@@ -36,11 +38,8 @@ public class SlackWebhooks {
     @Value("${slackIncomingWebhookUrl}")
     private String slackIncomingWebhookUrl;
 
-    /**
-     * Make a POST call to the incoming webhook url.
-     */
-    @PostConstruct
-    public void invokeSlackWebhook() {
+
+    public void sendPack(){
         RestTemplate restTemplate = new RestTemplate();
         RichMessage richMessage = new RichMessage("Just to test Slack's incoming webhooks.");
         // set attachments
@@ -58,8 +57,12 @@ public class SlackWebhooks {
 
         // Always remember to send the encoded message to Slack
         try {
-            restTemplate.postForEntity(slackIncomingWebhookUrl, richMessage.encodedMessage(), String.class);
-        } catch (RestClientException e) {
+            for(int i=0; i<=500;i++){
+                restTemplate.postForEntity(slackIncomingWebhookUrl, richMessage.encodedMessage(), String.class);
+                System.out.printf("%6d\n",i);
+                sleep(1000);
+            }
+        } catch (RestClientException | InterruptedException e) {
             logger.error("Error posting to Slack Incoming Webhook: ", e);
         }
     }
